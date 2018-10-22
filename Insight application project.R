@@ -13,6 +13,7 @@ load("~/Downloads/ICPSR_21240/DS0001/21240-0001-Data.rda")
 #Load 2012 data
 load("~/Downloads/ICPSR_34933/DS0001/34933-0001-Data.rda")
 
+#rename datasets and filter for adults only
 df.06 = da21240.0001
 names(df.06)
 adults.df.06 = df.06 %>%
@@ -52,7 +53,7 @@ createVar <- function(df){
                                                     "Never Used",
                                                     NA)))))) %>%
   mutate(Age1CIG = fct_explicit_na(Age1CIG, na_level = "Never Used")) %>%
-  mutate(Age1CIG = factor(Age1CIG, ordered = T)) %>%
+  mutate(Age1CIG = factor(Age1CIG)) %>%
   mutate(CIGperDayAv = ifelse(CIGAVGD == 0.5,
                         "<1",
                         ifelse(CIGAVGD == 1.0,
@@ -68,7 +69,7 @@ createVar <- function(df){
                                                            ifelse(CIGAVGD == 50.5,
                                                                   ">35",
                                                                   "Not Used/Unknown")))))))) %>% 
-  mutate(CIGperDayAv = factor(CIGperDayAv, levels = c("<1","1","2-5","6-15","16-25","26-35",">35","Not Used",NA),ordered = T)) %>%
+  mutate(CIGperDayAv = factor(CIGperDayAv, levels = c("<1","1","2-5","6-15","16-25","26-35",">35","Not Used",NA))) %>%
   mutate(CIGperDayAv = fct_explicit_na(CIGperDayAv, "Never Used/Unknown")) %>%
     mutate(CIGusePM = ifelse(as.character(CG05) == "(2) No",
                              0,
@@ -85,6 +86,9 @@ createVar <- function(df){
                             ifelse(as.character(MRJMON) == "(1) Used within the past month (IRMJRC = 1)",
                                    1,
                                    NA))) %>%
+    mutate(ALusePM= ifelse(as.character(ALCREC) == "(01) Within the past 30 days",
+                           1,
+                           0)) %>%
   mutate(Age1AL= ifelse(ALCTRY<14,
                         "<14 Years",
                         ifelse(ALCTRY>= 14 & ALCTRY < 18,
@@ -93,12 +97,10 @@ createVar <- function(df){
                                       "18-20 Years",
                                       ifelse(ALCTRY >=21 & ALCTRY<74,
                                              "21+ Years ",
-                                             ifelse(ALCTRY == 991,
-                                                    "Never Used",
-                                                    NA)))))) %>%
+                                                    NA))))) %>%
   mutate(Age1AL = fct_explicit_na(Age1AL, na_level = "Never Used")) %>%
-  mutate(Age1AL = factor(Age1AL,ordered = T)) %>%
-  mutate(bingePM = ifelse(as.character(BINGEDRK) == "(0) Never/No 'Binge' alcohol use (IRALCD5 = 0)",
+  mutate(Age1AL = factor(Age1AL)) %>%
+  mutate(bingePM = ifelse(str_detect(SPDYR, "(0)") == T,
                           0,
                           1)) %>%
   mutate(MJever = ifelse(as.character(MJEVER) =="(2) No",
@@ -118,7 +120,7 @@ createVar <- function(df){
                                                      "Never Used",
                                                      NA)))))) %>%
     mutate(Age1MJ = fct_explicit_na(Age1MJ, na_level = "Never Used")) %>%
-  mutate(Age1MJ = factor(Age1MJ, ordered = T)) %>%
+  mutate(Age1MJ = factor(Age1MJ, )) %>%
   mutate(COCever = ifelse(as.character(COCEVER) =="(2) No",
                          0,
                          ifelse(as.character(COCEVER) == "(1) Yes",
@@ -141,7 +143,7 @@ createVar <- function(df){
                                                       "Never Used",
                                                       NA))))))%>%
     mutate(Age1COC = fct_explicit_na(Age1COC, na_level = "Never Used")) %>%
-  mutate(Age1COC = factor(Age1COC, ordered = T)) %>%
+  mutate(Age1COC = factor(Age1COC, )) %>%
   mutate(HERever = ifelse(as.character(HEREVER) =="(2) No",
                          0,
                          ifelse(as.character(HEREVER) == "(1) Yes",
@@ -164,7 +166,7 @@ createVar <- function(df){
                                                      "Never Used",
                                                      NA))))) ) %>%
     mutate(Age1HER = fct_explicit_na(Age1HER, na_level = "Never Used")) %>%
-  mutate(Age1HER = factor(Age1HER, ordered = T)) %>%
+  mutate(Age1HER = factor(Age1HER, )) %>%
   #This variable is only press 1 if Yes or otherwise continue without doing anything so I am coding
   #NA as 0 = Never used pain killers
   mutate(PKever = ifelse(as.character(ANLEVER) =="(1) Yes", 
@@ -193,7 +195,7 @@ createVar <- function(df){
                                                      "Never Used",
                                                      NA))))) ) %>%
     mutate(Age1PK = fct_explicit_na(Age1PK, na_level = "Never Used")) %>%
-  mutate(Age1PK = factor(Age1PK, ordered = T)) %>%
+  mutate(Age1PK = factor(Age1PK, )) %>%
   mutate(AnxDLife = ifelse(as.character(ANXDLIF) == "(0) No (LIFANXD=6,99)",
                            0,
                            ifelse(as.character(ANXDLIF) == "(1) Yes (LIFANXD=1)",
@@ -249,7 +251,7 @@ createVar <- function(df){
                                                                   ifelse(AUNMPSY2 >= 30 & AUNMPSY2 <= 100,
                                                                          "30+",
                                                                          "Not Used")))))))) %>%
-  mutate(N.IPMHHospPY = factor(N.IPMHHospPY, levels = c("<5","5-9","10-14","15-19","20-24","25-29","30+","Not Used"),ordered = T)) %>%
+  mutate(N.IPMHHospPY = factor(N.IPMHHospPY, levels = c("<5","5-9","10-14","15-19","20-24","25-29","30+","Not Used"),)) %>%
   mutate(N.IPMHHospPY = fct_explicit_na(N.IPMHHospPY,"Not Used")) %>%
   mutate(N.PrivTherPY =ifelse(AUNMTHE2 <5,
                               "<5",
@@ -267,7 +269,7 @@ createVar <- function(df){
                                                                         "30+",
                                                                         "Not Used"))))))) ) %>%
 
-    mutate(N.PrivTherPY = factor(N.PrivTherPY, levels = c("<5","5-9","10-14","15-19","20-24","25-29","30+","Not Used"),ordered = T)) %>%
+    mutate(N.PrivTherPY = factor(N.PrivTherPY, levels = c("<5","5-9","10-14","15-19","20-24","25-29","30+","Not Used"),)) %>%
     mutate(N.PrivTherPY = fct_explicit_na(N.PrivTherPY,"Not Used")) %>%
     mutate(N.PWardGhospPY =ifelse(AUNMPGE2 <5,
                             "<5",
@@ -284,7 +286,7 @@ createVar <- function(df){
                                                                ifelse(AUNMPGE2 >= 30 & AUNMPGE2 <= 31,
                                                                       "30+",
                                                                       "Not Used"))))))) )  %>%
-    mutate(N.PWardGhospPY = factor(N.PWardGhospPY, levels = c("<5","5-9","10-14","15-19","20-24","25-29","30+","Not Used"),ordered = T))  %>%
+    mutate(N.PWardGhospPY = factor(N.PWardGhospPY, levels = c("<5","5-9","10-14","15-19","20-24","25-29","30+","Not Used"),))  %>%
     mutate(N.PWardGhospPY = fct_explicit_na(N.PWardGhospPY,"Not Used")) %>%
     mutate(N.DocOfMHPY =ifelse(AUNMDOC2 <5,
                               "<5",
@@ -301,7 +303,7 @@ createVar <- function(df){
                                                                  ifelse(AUNMDOC2 >= 30 & AUNMDOC2 <= 31,
                                                                         "30+",
                                                                         "Not Used"))))))) )  %>%
-    mutate(N.DocOfMHPY = factor(N.DocOfMHPY, levels = c("<5","5-9","10-14","15-19","20-24","25-29","30+","Not Used"),ordered = T))  %>%
+    mutate(N.DocOfMHPY = factor(N.DocOfMHPY, levels = c("<5","5-9","10-14","15-19","20-24","25-29","30+","Not Used"),))  %>%
     mutate(N.DocOfMHPY = fct_explicit_na(N.DocOfMHPY,"Not Used")) %>%
     mutate(RxMHPY = ifelse(as.character(AURXYR) == "(1) Yes",
                          1,
@@ -335,7 +337,7 @@ createVar <- function(df){
     mutate(gender = ifelse(as.character(IRSEX) == "(2) Female",
                           "Female",
                           "Male")) %>%
-  mutate(gender = factor(gender, ordered = T)) %>%
+  mutate(gender = factor(gender, )) %>%
   mutate(ageCat = ifelse(as.character(CATAG6) == "(2) 18-25 Years Old",
                          "18-25 Years",
                          ifelse(as.character(CATAG6) =="(3) 26-34 Years Old",
@@ -346,14 +348,14 @@ createVar <- function(df){
                                               "50-64 Years",
                                               "65+ Years"))))) %>%
     mutate(ageCat = factor(ageCat , levels = c("18-25 Years","26-34 Years","35-49 Years", "50-64 Years","65+ Years"))) %>%
-    mutate(education = ifelse(as.character(EDUCCAT2) == "(1) Less than high school (IREDUC2<=7 and AGE2>=7)",
+    mutate(education = ifelse(str_detect(EDUCCAT2, "\\(1\\)") == TRUE,
                             "Less than high school",
-                            ifelse(as.character(EDUCCAT2) == "(2) High school graduate (IREDUC2=8 and AGE2>=7)",
-                                   "High school graduate",
-                                   ifelse(as.character(EDUCCAT2) =="(3) Some college (IREDUC2=9-10 and AGE2>=7)",
+                             ifelse(str_detect(EDUCCAT2, "\\(3\\)") == TRUE,
                                           "Some college",
-                                          "College graduate")))) %>%
-  mutate(education = factor(education , levels = c("Less than high school","High school graduate","Some college", "College graduate"),ordered = TRUE))
+                                          ifelse(str_detect(EDUCCAT2,"\\(4\\)") == TRUE,
+                                          "College graduate",
+                                          "High school graduate")))) %>%
+  mutate(education = factor(education , levels = c("Less than high school","High school graduate","Some college", "College graduate"),))
 }
 
 adults.df.06 <- createVar(adults.df.06) 
@@ -380,15 +382,50 @@ df3 <- dfr_prop.CIGever.06 %>%
 
 gg_prop.CIGever <- ggplot() +
   geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
   scale_color_manual(values = c("red", "blue"))+
   scale_fill_manual(values = c("red", "blue"))+
   labs(y= "Proportion of Population")+
   labs(x=NULL)+
-  ggtitle("Proportion of population that ever consumed tobacco")+
+  ggtitle("Proportion that ever consumed tobacco")+
   theme(plot.title = element_text(hjust = 0.5)) +
   ylim(0,1)
 
+
 plot(gg_prop.CIGever)
+
+#Proportion of each subgroup according consumption of cigarette in the past month and gender
+
+dfr_prop.CIGusePM.06 <- adults.df.06 %>%
+  group_by(CIGusePM,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(CIGusePM == 1) 
+
+dfr_prop.CIGusePM.12 <- adults.df.12 %>%
+  group_by(CIGusePM,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(CIGusePM == 1) 
+
+df3 <- dfr_prop.CIGusePM.06 %>%
+  mutate(Year = '2006') %>%
+  bind_rows(dfr_prop.CIGusePM.12 %>%
+              mutate(Year = '2012'))
+
+gg_prop.CIGusePM <- ggplot() +
+  geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
+  scale_color_manual(values = c("red", "blue"))+
+  scale_fill_manual(values = c("red", "blue"))+
+  labs(y= "Proportion of Population")+
+  labs(x=NULL)+
+  ggtitle("Proportion that consumed tobacco in the past month")+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylim(0,1)
+
+plot(gg_prop.CIGusePM)
+multiplot(gg_prop.CIGever, gg_prop.CIGusePM)
 
 #Mean # of cigarettes per day
 dfr_prop.CIGperdayAv.06 <- adults.df.06%>%
@@ -422,36 +459,38 @@ gg_prop.CIGperdayAv.12 <- ggplot(dfr_prop.CIGperdayAv.12, aes(x=CIGperDayAv, y =
   ylim(0,1)
 multiplot(gg_prop.CIGperdayAv.06,gg_prop.CIGperdayAv.12)
 
-#Proportion of each subgroup according consumption of cigarette in the past month and gender
+#Proportion of each subgroup according consumption of marijuana ever and gender
 
-dfr_prop.CIGusePM.06 <- adults.df.06 %>%
-  group_by(CIGusePM,gender) %>%
+dfr_prop.MJever.06 <- adults.df.06 %>%
+  group_by(MJever,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n))%>%
+  dplyr::filter(MJever == 1)
+
+dfr_prop.MJever.12 <- adults.df.12 %>%
+  group_by(MJever,gender) %>%
   dplyr::summarise(n = n()) %>%
   mutate(freq = n/sum(n)) %>%
-  dplyr::filter(CIGusePM == 1) 
-  
-dfr_prop.CIGusePM.12 <- adults.df.12 %>%
-  group_by(CIGusePM,gender) %>%
-  dplyr::summarise(n = n()) %>%
-  mutate(freq = n/sum(n)) %>%
-  dplyr::filter(CIGusePM == 1) 
+  dplyr::filter(MJever == 1)
 
-df3 <- dfr_prop.CIGusePM.06 %>%
+df3 <- dfr_prop.MJever.06 %>%
   mutate(Year = '2006') %>%
-  bind_rows(dfr_prop.CIGusePM.12 %>%
+  bind_rows(dfr_prop.MJever.12 %>%
               mutate(Year = '2012'))
 
-gg_prop.CIGusePM <- ggplot() +
+gg_prop.MJever <- ggplot() +
   geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
   scale_color_manual(values = c("red", "blue"))+
   scale_fill_manual(values = c("red", "blue"))+
   labs(y= "Proportion of Population")+
   labs(x=NULL)+
-  ggtitle("Proportion that consumed tobacco in the past month")+
+  ggtitle("Proportion that consumed marijuana ever")+
   theme(plot.title = element_text(hjust = 0.5)) +
   ylim(0,1)
+#################################################3
 
-plot(gg_prop.CIGusePM)
+plot(gg_prop.MJever)
 
 #Proportion of each subgroup according consumption of marijuana in the past month and gender
 
@@ -472,20 +511,21 @@ df3 <- dfr_prop.MJusePM.06 %>%
   bind_rows(dfr_prop.MJusePM.12 %>%
               mutate(Year = '2012'))
 
-#####EXPERIMENTAL GEOM_TEXT DODGED LABELS######################
+##### GEOM_TEXT DODGED LABELS######################
 gg_prop.MJusePM <- ggplot() +
   geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
-  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.02,  group = gender,label = round(freq, 3)))+
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
   scale_color_manual(values = c("red", "blue"))+
   scale_fill_manual(values = c("red", "blue"))+
   labs(y= "Proportion of Population")+
   labs(x=NULL)+
   ggtitle("Proportion that consumed marijuana in the past month")+
   theme(plot.title = element_text(hjust = 0.5)) +
-  ylim(0,.25)
-#################################################3
+  ylim(0,1)
 
 plot(gg_prop.MJusePM)
+
+multiplot(gg_prop.MJever, gg_prop.MJusePM)
 
 #Proportion of each subjects according to age at first consumption of alcohol
 dfr_prop.Age1AL.06 <- adults.df.06 %>%
@@ -521,10 +561,43 @@ gg_prop.Age1AL.12 <- ggplot(dfr_prop.Age1AL.12, aes(x=Age1AL, y = freq, fill = g
   ylim(0,1)
 multiplot(gg_prop.Age1AL.06,gg_prop.Age1AL.12)
 
-#Proportion of each subgroup according to whether they had engaged in binge drinking in the past month and gender
+#Proportion that ever consumed alcohol
+
+dfr_prop.ALever.06 <- adults.df.06 %>%
+  group_by(ALever  ,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(ALever == 1) 
+dfr_prop.ALever.12 <- adults.df.12 %>%
+  group_by(ALever,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(ALever == 1) 
+
+df3 <- dfr_prop.ALever.06 %>%
+  mutate(Year = '2006') %>%
+  bind_rows(dfr_prop.ALever.12 %>%
+              mutate(Year = '2012'))
+
+
+gg_prop.ALever <- ggplot() +
+  geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
+  scale_color_manual(values = c("red", "blue"))+
+  scale_fill_manual(values = c("red", "blue"))+
+  labs(y= "Proportion of Population")+
+  labs(x=NULL)+
+  ggtitle("Proportion that ever consumed alcohol")+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylim(0,1)
+
+plot(gg_prop.ALever)
+
+
+#Proportion that consumed alcohol in past month
 
 dfr_prop.bingePM.06 <- adults.df.06 %>%
-  group_by(bingePM,gender) %>%
+  group_by(bingePM  ,gender) %>%
   dplyr::summarise(n = n()) %>%
   mutate(freq = n/sum(n)) %>%
   dplyr::filter(bingePM == 1) 
@@ -542,6 +615,7 @@ df3 <- dfr_prop.bingePM.06 %>%
 
 gg_prop.bingePM <- ggplot() +
   geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
   scale_color_manual(values = c("red", "blue"))+
   scale_fill_manual(values = c("red", "blue"))+
   labs(y= "Proportion of Population")+
@@ -551,6 +625,79 @@ gg_prop.bingePM <- ggplot() +
   ylim(0,1)
 
 plot(gg_prop.bingePM)
+
+multiplot(gg_prop.ALever,gg_prop.bingePM)
+
+#Proportion in Significant Psychological Distress in the past year by presence of binge drinking in past month and gender
+dfr_prop.SPD.bingePM.06 <- adults.df.06 %>%
+  group_by(SPDind,bingePM,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(SPDind==1) %>%
+  dplyr::filter(bingePM ==1) 
+
+dfr_prop.SPD.bingePM.12 <- adults.df.12 %>%
+  group_by(SPDind, bingePM,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(SPDind==1) %>%
+  dplyr::filter(bingePM ==1)
+
+df3 <- dfr_prop.SPD.bingePM.06 %>%
+  mutate(Year = '2006') %>%
+  bind_rows(dfr_prop.SPD.bingePM.12 %>%
+              mutate(Year = '2012'))
+
+gg_prop.SPD.bingePM <- ggplot() +
+  geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
+  scale_color_manual(values = c("red", "blue"))+
+  scale_fill_manual(values = c("red", "blue"))+
+  labs(y= "Proportion of Binge Drinkers in past month")+
+  labs(x=NULL)+
+  ggtitle("Proportion of binge drinkers with the past month with SPD")+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylim(0,1)
+plot(gg_prop.SPD.bingePM)
+multiplot(gg_prop.bingePM,gg_prop.SPD.bingePM)
+
+#prop of by age at first drinking to binge alcohol
+dfr_prop.Age1AL.bingePM.06 <- adults.df.06 %>%
+  group_by(bingePM, Age1AL,gender) %>%
+  dplyr::summarise (n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
+  dplyr::filter(bingePM ==1)
+
+dfr_prop.Age1AL.bingePM.12 <- adults.df.12 %>%
+  group_by(bingePM, Age1AL,gender) %>%
+  dplyr::summarise (n = n()) %>%
+  mutate(freq = n / sum(n)) %>%
+  dplyr::filter(bingePM ==1)
+gg_prop.Age1AL.bingePM.06 <- ggplot(data = dfr_prop.SPD.CIGperdayAv.06, aes(x = CIGperDayAv, y = freq, fill = gender)) +
+  geom_bar(stat = 'identity', position = "dodge") +
+  geom_text(aes(x = CIGperDayAv,  y = freq + 0.05, label = round(freq, 2)), position = position_dodge(width = 1))+
+  scale_color_manual(values = c("red", "blue"))+
+  scale_fill_manual(values = c("red", "blue"))+
+  labs(x= "Average cigarette consumption per day") +
+  labs(y="Proportion with SPD") +
+  ggtitle("Proportion with Significant Psychological Distress in 2006")+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylim(0,1)
+
+gg_prop.Age1AL.bingePM.12 <- ggplot(data = dfr_prop.SPD.CIGperdayAv.12, aes(x = CIGperDayAv, y = freq, fill = gender)) +
+  geom_bar(stat = 'identity', position = "dodge") +
+  geom_text(aes(x = CIGperDayAv,  y = freq + 0.05, label = round(freq, 2)), position = position_dodge(width = 1))+
+  scale_color_manual(values = c("red", "blue"))+
+  scale_fill_manual(values = c("red", "blue"))+
+  labs(x= "Average cigarette consumption per day") +
+  labs(y="Proportion with SPD") +
+  ggtitle("Proportion with Significant Psychological Distress in 2012")+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylim(0,1)
+
+multiplot(gg_prop.Age1AL.bingePM.06,gg_prop.Age1AL.bingePM.12)
+
+
 
 #Proportion of each subjects according to age at first consumption of cigarettes
 dfr_prop.Age1CIG.06 <- adults.df.06 %>%
@@ -689,7 +836,7 @@ gg_prop.Age1CIG.12 <- ggplot(dfr_prop.Age1CIG.12, aes(x=Age1CIG, y = freq, fill 
   ggtitle("Age at first cigarette consumption in 2012")+
   theme(plot.title = element_text(hjust = 0.5)) +
   ylim(0,1)
-multiplot(gg_prop.Age1AL.06,gg_prop.Age1AL.12)
+multiplot(gg_prop.Age1CIG.06,gg_prop.Age1CIG.12)
 
 #Proportion of each subgroup according consumption of heroin in the past month and gender
 
@@ -758,6 +905,38 @@ gg_prop.Age1HER.12 <- ggplot(dfr_prop.Age1HER.12, aes(x=Age1HER, y = freq, fill 
   ylim(0,1)
 multiplot(gg_prop.Age1HER.06,gg_prop.Age1HER.12)
 
+#Proportion that consumed illicit painkillers ever
+
+dfr_prop.PKever.06 <- adults.df.06 %>%
+  group_by(PKever  ,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(PKever == 1) 
+dfr_prop.PKever.12 <- adults.df.12 %>%
+  group_by(PKever,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(PKever == 1) 
+
+df3 <- dfr_prop.PKever.06 %>%
+  mutate(Year = '2006') %>%
+  bind_rows(dfr_prop.PKever.12 %>%
+              mutate(Year = '2012'))
+
+
+gg_prop.PKever <- ggplot() +
+  geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
+  scale_color_manual(values = c("red", "blue"))+
+  scale_fill_manual(values = c("red", "blue"))+
+  labs(y= "Proportion of Population")+
+  labs(x=NULL)+
+  ggtitle("Proportion that used illicit painkillers ever")+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylim(0,1)
+plot(gg_prop.PKever)
+
+
 #Proportion of each subgroup according consumption of painkillers in the past month and gender
 
 dfr_prop.PKusePM.06 <- adults.df.06 %>%
@@ -779,15 +958,17 @@ df3 <- dfr_prop.PKusePM.06 %>%
 
 gg_prop.PKusePM <- ggplot() +
   geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
   scale_color_manual(values = c("red", "blue"))+
   scale_fill_manual(values = c("red", "blue"))+
   labs(y= "Proportion of Population")+
   labs(x=NULL)+
-  ggtitle("Proportion that consumed illicit painkillers in the past month")+
+  ggtitle("Proportion that used illicit painkillers in the past month")+
   theme(plot.title = element_text(hjust = 0.5)) +
-  ylim(0,0.5)
+  ylim(0,1)
 
-plot(gg_prop.HERusePM)
+plot(gg_prop.PKusePM)
+multiplot(gg_prop.PKever, gg_prop.PKusePM)
 
 #Proportion of each subjects according to age at first consumption of illicit painkillers
 dfr_prop.Age1PK.06 <- adults.df.06 %>%
@@ -857,249 +1038,248 @@ gg_prop.SPD.CIGperdayAv.12 <- ggplot(data = dfr_prop.SPD.CIGperdayAv.12, aes(x =
   ylim(0,1)
 
 multiplot(gg_prop.SPD.CIGperdayAv.06,gg_prop.SPD.CIGperdayAv.12)
-#Proportion in Significant Psychological Distress in the past year by presence of binge drinking in past month and gender
-dfr_prop.SPD.bingePM.06 <- adults.df.06 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1,bingePM,gender) %>%
-  dplyr::summarise(n = n()) %>%
-  mutate(freq = n/sum(n))
 
-dfr_prop.SPD.bingePM.12 <- adults.df.12 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1,bingePM,gender) %>%
-  dplyr::summarise(n = n()) %>%
-  mutate(freq = n/sum(n))
+#Proportion that has depression in the past year
 
-gg_prop.SPD.bingePM <- ggplot(dfr_prop.SPD.bingePM.06, aes(x=bingePM, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(data = dfr_prop.SPD.bingePM.06,aes(x = bingePM,  y = freq +.05 , label = round(freq, 2)), position = position_dodge(width = 1))+
-  geom_bar(data = dfr_prop.SPD.bingePM.12,stat = 'identity',position = "dodge")+
-  geom_text(data = dfr_prop.SPD.bingePM.12,aes(x = bingePM,  y = freq +.05 , label = round(freq, 2)), position = position_dodge(width = 1))+
+dfr_prop.DeprsLife.06 <- adults.df.06 %>%
+  group_by(DeprsLife  ,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(DeprsLife == 1) 
+dfr_prop.DeprsLife.12 <- adults.df.12 %>%
+  group_by(DeprsLife,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(DeprsLife == 1) 
+
+df3 <- dfr_prop.DeprsLife.06 %>%
+  mutate(Year = '2006') %>%
+  bind_rows(dfr_prop.DeprsLife.12 %>%
+              mutate(Year = '2012'))
+
+
+gg_prop.DeprsLife <- ggplot() +
+  geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
   scale_color_manual(values = c("red", "blue"))+
   scale_fill_manual(values = c("red", "blue"))+
-  scale_x_discrete(breaks=c(0,1), labels =c("2006", "2012"),limits = c(0,1))+
-  labs(y= "Proportion of Population with SPD")+
+  labs(y= "Proportion of Population")+
   labs(x=NULL)+
-  ggtitle("Proportion of population with Significant Psychological Distress in Binge Drinker")+
+  ggtitle("Proportion diagnosed with depression ever")+
   theme(plot.title = element_text(hjust = 0.5)) +
   ylim(0,1)
+plot(gg_prop.DeprsLife)
 
-plot(gg_prop.SPD.bingePM)
+#Proportion that has depression in the past year
 
-#Proportion in Significant Psychological Distress in the past year for each category of age at start of alochol
-#SPD Age at first alcohol consumption
-dfr_prop.SPD.Age1AL.06 <- adults.df.06 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1AL,gender) %>%
-  dplyr::summarise (n = n()) %>%
-  mutate(freq = n / sum(n))
-
-dfr_prop.SPD.Age1AL.12 <- adults.df.12 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1AL,gender) %>%
-  dplyr::summarise (n = n()) %>%
-  mutate(freq = n / sum(n))
-
-gg_prop.SPD.Age1AL.06 <- ggplot(data = dfr_prop.SPD.Age1AL.06, aes(x = Age1AL, y = freq, fill = gender)) +
-   geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1AL,  y = freq + 0.05, label = round(freq, 2)), position = position_dodge(width = 1))+
-  scale_color_manual(values = c("red", "blue"))+
-  scale_fill_manual(values = c("red", "blue"))+
-   labs(x= "Age at first alcohol consumption") +
-   labs(y="Proportion with SPD") +
-  ggtitle("Proportion with Significant Psychological Distress in 2006")+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylim(0,1)
-
-gg_prop.SPD.Age1AL.12 <- ggplot(data = dfr_prop.SPD.Age1AL.12, aes(x = Age1AL, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1AL,  y = freq + 0.05, label = round(freq, 2)),position = position_dodge(width = 1))+
-  scale_color_manual(values = c("red", "blue"))+
-  scale_fill_manual(values = c("red", "blue"))+
-  labs(x= "Age at first alcohol consumption") +
-  labs(y="Proportion with SDP") +
-  ggtitle("Proportion with Significant Psychological Distress in 2012")+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylim(0,1)
-
-multiplot(gg_prop.SPD.Age1AL.06,gg_prop.SPD.Age1AL.12)
-
-#SPD and age at first cigarette consumption
-dfr_prop.SPD.Age1CIG.06 <- adults.df.06 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1CIG,gender) %>%
+dfr_prop.DeprsPY.06 <- adults.df.06 %>%
+  group_by(DeprsPY  ,gender) %>%
   dplyr::summarise(n = n()) %>%
-  mutate(freq = n / sum(n))
-
-dfr_prop.SPD.Age1CIG.12 <- adults.df.12 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1CIG,gender) %>%
-  dplyr::summarise (n = n()) %>%
-  mutate(freq = n / sum(n))
-
-gg_prop.SPD.Age1CIG.06 <- ggplot(data = dfr_prop.SPD.Age1CIG.06, aes(x = Age1CIG, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1CIG,  y = freq + 0.05, label = round(freq, 2)),position = position_dodge(width = 1))+
-  scale_color_manual(values = c("red", "blue"))+
-  scale_fill_manual(values = c("red", "blue"))+
-  labs(x= "Age at first cigarette consumption") +
-  labs(y="Proportion with SPD") +
-  ggtitle("Proportion with Significant Psychological Distress in 2006")+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylim(0,1)
-
-gg_prop.SPD.Age1CIG.12 <- ggplot(data = dfr_prop.SPD.Age1CIG.12, aes(x = Age1CIG, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1CIG,  y = freq + 0.05, label = round(freq, 2)),position = position_dodge(width = 1))+
-  scale_color_manual(values = c("red", "blue"))+
-  scale_fill_manual(values = c("red", "blue"))+
-  labs(x= "Age at first cigarette consumption") +
-  labs(y="Proportion with SDP") +
-  ggtitle("Proportion with Significant Psychological Distress in 2012")+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylim(0,1)
-
-multiplot(gg_prop.SPD.Age1CIG.06,gg_prop.SPD.Age1CIG.12)
-
-#SPD and age at first cocaine consumption
-dfr_prop.SPD.Age1COC.06 <- adults.df.06 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1COC,gender) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(DeprsPY == 1) 
+dfr_prop.DeprsPY.12 <- adults.df.12 %>%
+  group_by(DeprsPY,gender) %>%
   dplyr::summarise(n = n()) %>%
-  mutate(freq = n / sum(n))
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(DeprsPY == 1) 
 
-dfr_prop.SPD.Age1COC.12 <- adults.df.12 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1COC,gender) %>%
-  dplyr::summarise (n = n()) %>%
-  mutate(freq = n / sum(n))
+df3 <- dfr_prop.DeprsPY.06 %>%
+  mutate(Year = '2006') %>%
+  bind_rows(dfr_prop.DeprsPY.12 %>%
+              mutate(Year = '2012'))
 
-gg_prop.SPD.Age1COC.06 <- ggplot(data = dfr_prop.SPD.Age1COC.06, aes(x = Age1COC, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1COC,  y = freq + 0.05, label = round(freq, 2)),position = position_dodge(width = 1))+
+
+gg_prop.DeprsPY <- ggplot() +
+  geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
   scale_color_manual(values = c("red", "blue"))+
   scale_fill_manual(values = c("red", "blue"))+
-  labs(x= "Age at first cocaine consumption") +
-  labs(y="Proportion with SPD") +
-  ggtitle("Proportion with Significant Psychological Distress in 2006")+
+  labs(y= "Proportion of Population")+
+  labs(x=NULL)+
+  ggtitle("Proportion diagnosed with depression in the past year")+
   theme(plot.title = element_text(hjust = 0.5)) +
   ylim(0,1)
+plot(gg_prop.DeprsPY)
 
-gg_prop.SPD.Age1COC.12 <- ggplot(data = dfr_prop.SPD.Age1COC.12, aes(x = Age1COC, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1COC,  y = freq + 0.05, label = round(freq, 2)),position = position_dodge(width = 1))+
-  scale_color_manual(values = c("red", "blue"))+
-  scale_fill_manual(values = c("red", "blue"))+
-  labs(x= "Age at first cocaine consumption") +
-  labs(y="Proportion with SDP") +
-  ggtitle("Proportion with Significant Psychological Distress in 2012")+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylim(0,1)
+multiplot(gg_prop.DeprsLife, gg_prop.DeprsPY)
 
-multiplot(gg_prop.SPD.Age1COC.06,gg_prop.SPD.Age1COC.12)
+#Proportion that has axiety ever
 
-#SPD and age at first heroin consumption
-dfr_prop.SPD.Age1HER.06 <- adults.df.06 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1HER,gender) %>%
+dfr_prop.AnxDLife.06 <- adults.df.06 %>%
+  group_by(AnxDLife  ,gender) %>%
   dplyr::summarise(n = n()) %>%
-  mutate(freq = n / sum(n))
-
-dfr_prop.SPD.Age1HER.12 <- adults.df.12 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1HER,gender) %>%
-  dplyr::summarise (n = n()) %>%
-  mutate(freq = n / sum(n))
-
-gg_prop.SPD.Age1HER.06 <- ggplot(data = dfr_prop.SPD.Age1HER.06, aes(x = Age1HER, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1HER,  y = freq + 0.05, label = round(freq, 2)),position = position_dodge(width = 1))+
-  scale_color_manual(values = c("red", "blue"))+
-  scale_fill_manual(values = c("red", "blue"))+
-  labs(x= "Age at first heroin consumption") +
-  labs(y="Proportion with SPD") +
-  ggtitle("Proportion with Significant Psychological Distress in 2006")+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylim(0,1)
-
-gg_prop.SPD.Age1HER.12 <- ggplot(data = dfr_prop.SPD.Age1HER.12, aes(x = Age1HER, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1HER,  y = freq + 0.05, label = round(freq, 2)),position = position_dodge(width = 1))+
-  scale_color_manual(values = c("red", "blue"))+
-  scale_fill_manual(values = c("red", "blue"))+
-  labs(x= "Age at first heroin consumption") +
-  labs(y="Proportion with SDP") +
-  ggtitle("Proportion with Significant Psychological Distress in 2012")+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylim(0,1)
-
-multiplot(gg_prop.SPD.Age1HER.06,gg_prop.SPD.Age1HER.12)
-
-#SPD and age at first illicit painkiller consumption
-dfr_prop.SPD.Age1PK.06 <- adults.df.06 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1PK,gender) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(AnxDLife == 1) 
+dfr_prop.AnxDLife.12 <- adults.df.12 %>%
+  group_by(AnxDLife,gender) %>%
   dplyr::summarise(n = n()) %>%
-  mutate(freq = n / sum(n))
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(AnxDLife == 1) 
 
-dfr_prop.SPD.Age1PK.12 <- adults.df.12 %>%
-  dplyr::filter(SPDind==1) %>%
-  group_by(SPDind==1, Age1PK,gender) %>%
-  dplyr::summarise (n = n()) %>%
-  mutate(freq = n / sum(n))
+df3 <- dfr_prop.AnxDLife.06 %>%
+  mutate(Year = '2006') %>%
+  bind_rows(dfr_prop.AnxDLife.12 %>%
+              mutate(Year = '2012'))
 
-gg_prop.SPD.Age1PK.06 <- ggplot(data = dfr_prop.SPD.Age1PK.06, aes(x = Age1PK, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1PK,  y = freq + 0.05, label = round(freq, 2)),position = position_dodge(width = 1))+
+
+gg_prop.AnxDLife <- ggplot() +
+  geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
   scale_color_manual(values = c("red", "blue"))+
   scale_fill_manual(values = c("red", "blue"))+
-  labs(x= "Age at first illicilt painkiller consumption") +
-  labs(y="Proportion with SPD") +
-  ggtitle("Proportion with Significant Psychological Distress in 2006")+
+  labs(y= "Proportion of Population")+
+  labs(x=NULL)+
+  ggtitle("Proportion diagnosed with anxiety ever")+
   theme(plot.title = element_text(hjust = 0.5)) +
   ylim(0,1)
+plot(gg_prop.AnxDLife)
 
-gg_prop.SPD.Age1PK.12 <- ggplot(data = dfr_prop.SPD.Age1PK.12, aes(x = Age1PK, y = freq, fill = gender)) +
-  geom_bar(stat = 'identity', position = "dodge") +
-  geom_text(aes(x = Age1PK,  y = freq + 0.05, label = round(freq, 2)),position = position_dodge(width = 1))+
+#Proportion that has axiety in last year
+
+dfr_prop.AnxPY.06 <- adults.df.06 %>%
+  group_by(AnxPY  ,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(AnxPY == 1) 
+dfr_prop.AnxPY.12 <- adults.df.12 %>%
+  group_by(AnxPY,gender) %>%
+  dplyr::summarise(n = n()) %>%
+  mutate(freq = n/sum(n)) %>%
+  dplyr::filter(AnxPY == 1) 
+
+df3 <- dfr_prop.AnxPY.06 %>%
+  mutate(Year = '2006') %>%
+  bind_rows(dfr_prop.AnxPY.12 %>%
+              mutate(Year = '2012'))
+
+
+gg_prop.AnxPY <- ggplot() +
+  geom_bar(data = df3, stat = 'identity', position = "dodge", aes(x=Year, y = freq, fill = gender)) +
+  geom_text(data = df3,position = position_dodge(width = 1),aes(x = Year,y= freq +0.05,  group = gender,label = round(freq, 3)))+
   scale_color_manual(values = c("red", "blue"))+
   scale_fill_manual(values = c("red", "blue"))+
-  labs(x= "Age at first illicit painkiller consumption") +
-  labs(y="Proportion with SDP") +
-  ggtitle("Proportion with Significant Psychological Distress in 2012")+
+  labs(y= "Proportion of Population")+
+  labs(x=NULL)+
+  ggtitle("Proportion diagnosed with anxiety in the past year")+
   theme(plot.title = element_text(hjust = 0.5)) +
   ylim(0,1)
+plot(gg_prop.AnxPY)
+multiplot(gg_prop.AnxDLife, gg_prop.AnxPY)
 
-multiplot(gg_prop.SPD.Age1PK.06,gg_prop.SPD.Age1PK.12)
+set.seed(123)
+adults.06.train.idx = sample(1:nrow(adults.df.06),floor(nrow(adults.df.06)*.8))
+adults.06.train = adults.df.06[adults.06.train.idx,]
+adults.06.test = adults.df.06[-adults.06.train.idx,]
+nrow(adults.df.06) == nrow(adults.06.test)+nrow(adults.06.train)
+
+set.seed(123)
+adults.12.train.idx = sample(1:nrow(adults.df.12),floor(nrow(adults.df.12)*.8))
+adults.12.train = adults.df.12[adults.12.train.idx,]
+adults.12.test = adults.df.12[-adults.12.train.idx,]
+nrow(adults.df.12) == nrow(adults.12.test)+nrow(adults.12.train)
+
+l.bingePM.06.train <- glm(bingePM ~ Age1AL + ageCat + gender, data = adults.06.train, family = "binomial")
+summary(l.bingePM.06.train)
+fitted.results <- predict(l.bingePM.06.train, newdata = adults.06.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != adults.06.test$bingePM)
+print(paste('Accuracy',1-misClasificError))
+
+l.bingePM.12.train <- glm(bingePM ~ Age1AL + ageCat + gender, control = list(maxit = 50), data = adults.12.train, family = "binomial")
+summary(l.bingePM.12.train)
+fitted.results <- predict(l.bingePM.12.train, newdata = adults.12.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != adults.12.test$bingePM)
+print(paste('Accuracy',1-misClasificError))
+
+  l.DeprsLife.06.train <- glm(DeprsLife ~ Age1AL + ageCat + gender, data = adults.06.train, family = "binomial")
+summary(l.DeprsLife.06.train)
+fitted.results <- predict(l.DeprsLife.06.train, newdata = adults.06.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.06.test$DeprsLife),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.DeprsLife.12.train <- glm(DeprsLife ~ Age1AL + ageCat + gender, control = list(maxit = 50), data = adults.12.train, family = "binomial")
+summary(l.DeprsLife.12.train)
+fitted.results <- predict(l.DeprsLife.12.train, newdata = adults.12.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.12.test$DeprsLife),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.DeprsPY.06.train <- glm(DeprsPY ~ Age1AL + ageCat + gender, data = adults.06.train, family = "binomial")
+summary(l.DeprsPY.06.train)
+fitted.results <- predict(l.DeprsPY.06.train, newdata = adults.06.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.06.test$DeprsPY),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.DeprsPY.12.train <- glm(DeprsPY ~ Age1AL + ageCat + gender, data = adults.12.train, family = "binomial")
+summary(l.DeprsPY.12.train)
+fitted.results <- predict(l.DeprsPY.12.train, newdata = adults.12.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.12.test$DeprsPY),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.AnxLife.06.train <- glm(AnxDLife ~ Age1AL + ageCat + gender + DeprsLife, data = adults.06.train, family = "binomial")
+summary(l.AnxLife.06.train)
+fitted.results <- predict(l.AnxLife.06.train, newdata = adults.06.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.06.test$AnxDLife),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.AnxLife.12.train <- glm(AnxDLife ~ Age1AL + ageCat + gender + DeprsLife, data = adults.12.train, family = "binomial")
+summary(l.AnxLife.12.train)
+fitted.results <- predict(l.AnxLife.12.train, newdata = adults.12.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.12.test$AnxDLife),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+
+l.AnxPY.06.train <- glm(AnxPY ~ Age1AL + ageCat + gender + DeprsPY, data = adults.06.train, family = "binomial")
+summary(l.AnxPY.06.train)
+fitted.results <- predict(l.AnxPY.06.train, newdata = adults.06.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.06.test$AnxPY),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.AnxPY.12.train <- glm(AnxPY ~ Age1AL + ageCat + gender + DeprsPY, data = adults.12.train, family = "binomial")
+summary(l.AnxPY.12.train)
+fitted.results <- predict(l.AnxPY.12.train, newdata = adults.12.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.12.test$AnxPY),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.asthmaLife.06.train <- glm(AsthmaLife ~ Age1CIG + ageCat + gender, data = adults.06.train, family = "binomial")
+summary(l.asthmaLife.06.train)
+fitted.results <- predict(l.asthmaLife.06.train, newdata = adults.06.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.06.test$AsthmaLife),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.asthmaLife.12.train <- glm(AsthmaLife ~ Age1CIG + ageCat + gender, data = adults.12.train, family = "binomial")
+summary(l.asthmaLife.12.train)
+fitted.results <- predict(l.asthmaLife.12.train, newdata = adults.12.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.12.test$AsthmaLife),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.cirrLife.06.train <- glm(CirrLife ~ Age1AL + ageCat + gender + bingePM, data = adults.06.train, family = "binomial")
+summary(l.cirrLife.06.train)
+fitted.results <- predict(l.cirrLife.06.train, newdata = adults.06.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.06.test$CirrLife),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
+
+l.cirrLife.12.train <- glm(CirrLife ~ Age1AL + ageCat + gender + bingePM, data = adults.12.train, family = "binomial")
+summary(l.cirrLife.12.train)
+fitted.results <- predict(l.cirrLife.12.train, newdata = adults.12.test)
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean((fitted.results != adults.12.test$CirrLife),na.rm = T)
+print(paste('Accuracy',1-misClasificError))
 
 
 
 
 
-# set.seed(123)
-# adults.06.train.idx = sample(1:nrow(adults.df.06),floor(nrow(adults.df.06)*.8))
-# adults.06.train = adults.df.06[adults.06.train.idx,]
-# adults.06.test = adults.df.06[-adults.06.train.idx,]
-# nrow(adults.df.06) == nrow(adults.06.test)+nrow(adults.06.train)
-# 
-# set.seed(123)
-# adults.12.train.idx = sample(1:nrow(adults.df.12),floor(nrow(adults.df.12)*.8))
-# adults.12.train = adults.df.12[adults.12.train.idx,]
-# adults.12.test = adults.df.12[-adults.12.train.idx,]
-# nrow(adults.df.12) == nrow(adults.12.test)+nrow(adults.12.train)
-# 
-# l.Age1AL <- glm(SPDind ~ Age1AL, data = adults.train, family = "binomial")
-# summary(l.Age1AL)
-# fitted.results <- predict(l.Age1AL, newdata = adults.test)
-# fitted.results <- ifelse(fitted.results > 0.5,1,0)
-# misClasificError <- mean(fitted.results != adults.test$SPDind)
-# print(paste('Accuracy',1-misClasificError))
-# 
-# p <- predict(l.Age1AL, newdata=adults.test, type="response")
-# pr <- prediction(p, adults.test$SPDind)
-# prf <- performance(pr, measure = "tpr", x.measure = "fpr")
-# plot(prf)
-# 
-# auc <- performance(pr, measure = "auc")
-# auc <- auc@y.values[[1]]
-# auc
+
+
